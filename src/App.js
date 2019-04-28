@@ -83,7 +83,7 @@ class App extends Component {
           </button>
         </div>
         <div>
-          <h2>{solution}</h2>
+          <h2>{solution || "Dining Philosophers"}</h2>
         </div>
         {solution === "deadlock" && (
           <Table
@@ -105,6 +105,9 @@ class App extends Component {
             philosophers={philosophers}
             solution={solution}
           />
+        )}
+        {solution === null && (
+          <Table forks={forks} philosophers={philosophers} />
         )}
       </div>
     );

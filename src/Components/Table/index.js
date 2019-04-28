@@ -15,9 +15,11 @@ class Table extends Component {
   };
 
   componentWillUnmount() {
-    this.workers.map(w => {
-      w.terminate();
-    });
+    if (this.workers) {
+      this.workers.map(w => {
+        w.terminate();
+      });
+    }
   }
 
   constructor(props) {
@@ -28,84 +30,86 @@ class Table extends Component {
       forks: [...forks]
     };
 
-    this.workers = philosophers.map(p => {
-      let worker;
+    if (solution) {
+      this.workers = philosophers.map(p => {
+        let worker;
 
-      if (solution === "deadlock") {
-        worker = new WebWorker(deadlockedPhilosopherWorker);
-      } else if (solution === "resource-hierarchy") {
-        worker = new WebWorker(resourceHierarchyPhilosopherWorker);
-      } else if (solution === "arbitrator") {
-        worker = new WebWorker(arbitratorPhilosopherWorker);
-      }
+        if (solution === "deadlock") {
+          worker = new WebWorker(deadlockedPhilosopherWorker);
+        } else if (solution === "resource-hierarchy") {
+          worker = new WebWorker(resourceHierarchyPhilosopherWorker);
+        } else if (solution === "arbitrator") {
+          worker = new WebWorker(arbitratorPhilosopherWorker);
+        }
 
-      worker.addEventListener(
-        "message",
-        e => {
-          const msg = e.data;
-          if (msg.changeFork) {
-            this.setState(state => {
-              const newForks = state.forks.map((f, i) => {
-                if (i === msg.changeFork.index) {
-                  return msg.changeFork.value;
-                } else return f;
-              });
-
-              this.workers.map(w => {
-                w.postMessage({ forks: newForks });
-              });
-
-              return { forks: newForks };
-            });
-          }
-          if (msg.changeState) {
-            this.setState(state => {
-              const newPhilosophers = state.philosophers.map(p => {
-                if (p.color === msg.changeState.index) {
-                  return msg.changeState.value;
-                } else return p;
-              });
-              this.workers.map((w, i) => {
-                w.postMessage({ state: newPhilosophers[i] });
-              });
-
-              return { philosophers: newPhilosophers };
-            });
-          }
-          if (msg.askWaiter) {
-            this.setState(state => {
-              if (
-                state.forks[p.leftFork].color === "black" &&
-                state.forks[p.rightFork].color === "black"
-              ) {
-                const p = msg.askWaiter.philosopher;
-
+        worker.addEventListener(
+          "message",
+          e => {
+            const msg = e.data;
+            if (msg.changeFork) {
+              this.setState(state => {
                 const newForks = state.forks.map((f, i) => {
-                  if (i === p.leftFork || i === p.rightFork) {
-                    return { color: p.color };
+                  if (i === msg.changeFork.index) {
+                    return msg.changeFork.value;
                   } else return f;
                 });
 
-                this.workers.map((w, i) => {
+                this.workers.map(w => {
                   w.postMessage({ forks: newForks });
-                  if (state.philosophers[i].color === p.color) {
-                    w.postMessage({ eat: true });
-                  }
                 });
+
                 return { forks: newForks };
-              } else {
-                return {};
-              }
-            });
-          }
-        },
-        false
-      );
+              });
+            }
+            if (msg.changeState) {
+              this.setState(state => {
+                const newPhilosophers = state.philosophers.map(p => {
+                  if (p.color === msg.changeState.index) {
+                    return msg.changeState.value;
+                  } else return p;
+                });
+                this.workers.map((w, i) => {
+                  w.postMessage({ state: newPhilosophers[i] });
+                });
 
-      worker.postMessage({ state: p, forks: forks, start: true });
+                return { philosophers: newPhilosophers };
+              });
+            }
+            if (msg.askWaiter) {
+              this.setState(state => {
+                if (
+                  state.forks[p.leftFork].color === "black" &&
+                  state.forks[p.rightFork].color === "black"
+                ) {
+                  const p = msg.askWaiter.philosopher;
 
-      return worker;
-    });
+                  const newForks = state.forks.map((f, i) => {
+                    if (i === p.leftFork || i === p.rightFork) {
+                      return { color: p.color };
+                    } else return f;
+                  });
+
+                  this.workers.map((w, i) => {
+                    w.postMessage({ forks: newForks });
+                    if (state.philosophers[i].color === p.color) {
+                      w.postMessage({ eat: true });
+                    }
+                  });
+                  return { forks: newForks };
+                } else {
+                  return {};
+                }
+              });
+            }
+          },
+          false
+        );
+
+        worker.postMessage({ state: p, forks: forks, start: true });
+
+        return worker;
+      });
+    }
   }
   render() {
     const { philosophers, forks } = this.state;
