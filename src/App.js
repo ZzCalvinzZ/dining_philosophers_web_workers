@@ -1,26 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import Table from "./Components/Table/";
+import Fork from "./Components/Fork/";
+import Philosopher from "./Components/Philosopher/";
+import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  static propTypes = {
+    children: PropTypes.node,
+    className: PropTypes.string
+  };
+
+  state = {
+    forks: [Fork, Fork, Fork, Fork, Fork],
+    philosophers: [
+      Philosopher,
+      Philosopher,
+      Philosopher,
+      Philosopher,
+      Philosopher
+    ]
+  };
+
+  render() {
+    const { forks, philosophers } = this.state;
+    return (
+      <div className="app">
+        <Table forks={forks} philosophers={philosophers} />
+      </div>
+    );
+  }
 }
 
 export default App;
