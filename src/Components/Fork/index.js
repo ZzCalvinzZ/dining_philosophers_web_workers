@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import img from "./fork.png";
+import { ReactComponent as Svg } from "./fork.svg";
 import "./Fork.css";
 
 const Fork = ({ style }) => {
-  return <img src={img} alt="fork" className="fork" style={style} />;
+  return <Svg style={{ height: "50px", position: "absolute", ...style }} />;
 };
 
 Fork.defaultProps = {};

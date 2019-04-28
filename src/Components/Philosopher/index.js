@@ -1,12 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import img from "./philosopher.png";
+import { ReactComponent as Svg } from "./philosopher.svg";
 import "./Philosopher.css";
 
 const Philosopher = ({ style }) => {
-  return (
-    <img src={img} alt="philosopher" className="philosopher" style={style} />
-  );
+  return <Svg style={{ height: "50px", position: "absolute", ...style }} />;
 };
 
 Philosopher.defaultProps = {};

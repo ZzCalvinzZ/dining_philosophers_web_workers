@@ -1,10 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Table from "./Components/Table/";
-import Fork from "./Components/Fork/";
-import Philosopher from "./Components/Philosopher/";
-import philosopherWorker from "./philosopherWorker";
-import WebWorker from "./WebWorker";
 import "./App.css";
 
 class App extends Component {
@@ -14,13 +10,49 @@ class App extends Component {
   };
 
   state = {
-    forks: [Fork, Fork, Fork, Fork, Fork],
+    forks: [
+      { color: "black" },
+      { color: "black" },
+      { color: "black" },
+      { color: "black" },
+      { color: "black" }
+    ],
     philosophers: [
-      Philosopher,
-      Philosopher,
-      Philosopher,
-      Philosopher,
-      Philosopher
+      {
+        color: "red",
+        leftFork: 0,
+        rightFork: 2,
+        thinking: true,
+        eating: false
+      },
+      {
+        color: "blue",
+        leftFork: 1,
+        rightFork: 0,
+        thinking: true,
+        eating: false
+      },
+      {
+        color: "green",
+        leftFork: 4,
+        rightFork: 1,
+        thinking: true,
+        eating: false
+      },
+      {
+        color: "yellow",
+        leftFork: 2,
+        rightFork: 3,
+        thinking: true,
+        eating: false
+      },
+      {
+        color: "purple",
+        leftFork: 3,
+        rightFork: 4,
+        thinking: true,
+        eating: false
+      }
     ],
     speed: 10,
     solution: "deadlock"
@@ -28,20 +60,6 @@ class App extends Component {
 
   render() {
     const { forks, philosophers, solution, speed } = this.state;
-    const colors = ["red", "blue", "green", "yellow", "purple"];
-    const workers = philosophers.map(p => {
-      return new WebWorker(philosopherWorker);
-    });
-
-    workers[0].addEventListener("message", e => console.log(e.data), false);
-    workers[0].postMessage("eat");
-
-    // if (solution === "deadlock") {
-    // }
-
-    // if (solution === "no-deadlock") {
-    // }
-
     return (
       <div className="app">
         <button
@@ -57,7 +75,20 @@ class App extends Component {
           No Deadlock Solution
         </button>
         <div>{solution}</div>
-        <Table forks={forks} philosophers={philosophers} />
+        {solution === "deadlock" && (
+          <Table
+            forks={forks}
+            philosophers={philosophers}
+            solution={solution}
+          />
+        )}
+        {solution === "no-deadlock" && (
+          <Table
+            forks={forks}
+            philosophers={philosophers}
+            solution={solution}
+          />
+        )}
       </div>
     );
   }
