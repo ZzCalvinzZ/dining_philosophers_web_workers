@@ -40,7 +40,7 @@ class App extends Component {
         eating: false
       },
       {
-        color: "yellow",
+        color: "gray",
         leftFork: 2,
         rightFork: 3,
         thinking: true,
@@ -55,7 +55,7 @@ class App extends Component {
       }
     ],
     speed: 10,
-    solution: "deadlock"
+    solution: null
   };
 
   render() {
@@ -70,9 +70,9 @@ class App extends Component {
         </button>
         <button
           className="no-deadlock-btn"
-          onClick={() => this.setState({ solution: "no-deadlock" })}
+          onClick={() => this.setState({ solution: "resource-hierarchy" })}
         >
-          No Deadlock Solution
+          Resource Hierarchy Solution
         </button>
         <div>{solution}</div>
         {solution === "deadlock" && (
@@ -82,7 +82,7 @@ class App extends Component {
             solution={solution}
           />
         )}
-        {solution === "no-deadlock" && (
+        {solution === "resource-hierarchy" && (
           <Table
             forks={forks}
             philosophers={philosophers}

@@ -4,14 +4,21 @@ import "./Table.css";
 import Philosopher from "../Philosopher/";
 import Fork from "../Fork/";
 import deadlockedPhilosopherWorker from "../../deadlockedPhilosopherWorker";
-import nonDeadlockedPhilosopherWorker from "../../nonDeadlockedPhilosopherWorker";
+import resourceHierarchyPhilosopherWorker from "../../resourceHierarchyPhilosopherWorker";
 import WebWorker from "../../WebWorker";
 
 class Table extends Component {
   static propTypes = {
     philosophers: PropTypes.array,
-    forks: PropTypes.array
+    forks: PropTypes.array,
   };
+
+  componentWillUnmount() {
+    this.workers.map((w) => {
+      w.terminate();
+    })
+
+  }
 
   constructor(props) {
     super(props);
@@ -21,13 +28,13 @@ class Table extends Component {
       forks: [...forks]
     };
 
-    const workers = philosophers.map(p => {
+    this.workers = philosophers.map(p => {
       let worker;
 
       if (solution === "deadlock") {
         worker = new WebWorker(deadlockedPhilosopherWorker);
-      } else if (solution === "no-deadlock") {
-        worker = new WebWorker(nonDeadlockedPhilosopherWorker);
+      } else if (solution === "resource-hierarchy") {
+        worker = new WebWorker(resourceHierarchyPhilosopherWorker);
       }
 
       worker.addEventListener(
@@ -35,8 +42,6 @@ class Table extends Component {
         e => {
           const msg = e.data;
           if (msg.changeFork) {
-            console.log("changing state", msg.changeFork);
-
             this.setState(state => {
               const newForks = state.forks.map((f, i) => {
                 if (i === msg.changeFork.index) {
@@ -44,7 +49,7 @@ class Table extends Component {
                 } else return f;
               });
 
-              workers.map(w => {
+              this.workers.map(w => {
                 w.postMessage({ forks: newForks });
               });
 
@@ -55,10 +60,10 @@ class Table extends Component {
             this.setState(state => {
               const newPhilosophers = state.philosophers.map(p => {
                 if (p.color === msg.changeState.index) {
-                  return msg.changeFork.value;
+                  return msg.changeState.value;
                 } else return p;
               });
-              workers.map((w, i) => {
+              this.workers.map((w, i) => {
                 w.postMessage({ state: newPhilosophers[i] });
               });
 
@@ -81,7 +86,6 @@ class Table extends Component {
     const diameter = philosophers.length * 100;
     const radius = diameter / 2;
 
-
     return (
       <div
         className={"table"}
@@ -91,18 +95,23 @@ class Table extends Component {
         }}
       >
         <Philosopher
+          eating={philosophers[0].eating}
           style={{ left: "54px", top: "170px", fill: philosophers[0].color }}
         />
         <Philosopher
+          eating={philosophers[1].eating}
           style={{ left: "210px", top: "25px", fill: philosophers[1].color }}
         />
         <Philosopher
+          eating={philosophers[2].eating}
           style={{ left: "376px", top: "170px", fill: philosophers[2].color }}
         />
         <Philosopher
+          eating={philosophers[3].eating}
           style={{ left: "125px", top: "340px", fill: philosophers[3].color }}
         />
         <Philosopher
+          eating={philosophers[4].eating}
           style={{ left: "300px", top: "338px", fill: philosophers[4].color }}
         />
         <Fork style={{ left: "127px", top: "104px", fill: forks[0].color }} />
