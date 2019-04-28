@@ -4,7 +4,7 @@
 export default function philosopherWorker(args) {
   let state = {};
   let forks = [];
-  let speed = 500;
+  let speed = 100;
 
   const getRandomInt = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -41,10 +41,26 @@ export default function philosopherWorker(args) {
         value: { color: "black" }
       }
     });
+    setTimeout(() => {
+      stopThinking();
+    }, getRandomInt(1000, 5000));
+  };
+
+  const stopThinking = () => {
+    postMessage({
+      changeState: {
+        index: state.color,
+        value: Object.assign({}, state, { thinking: false, eating: false })
+      }
+    });
   };
 
   const start = () => {
     setInterval(() => {
+      if (state.eating || state.thinking) {
+        return;
+      }
+
       // always go for the small fork first which will leave one fork always available
       const smallForkIndex =
         state.leftFork < state.rightFork ? state.leftFork : state.rightFork;
@@ -54,32 +70,25 @@ export default function philosopherWorker(args) {
       const smallFork = forks[smallForkIndex];
       const bigFork = forks[bigForkIndex];
 
-      if (state.thinking) {
-        if (smallFork.color === "black") {
-          postMessage({
-            changeFork: {
-              index: smallForkIndex,
-              value: { color: state.color }
-            }
-          });
-        } else if (
-          smallFork.color === state.color &&
-          bigFork.color === "black"
-        ) {
-          postMessage({
-            changeFork: {
-              index: bigForkIndex,
-              value: { color: state.color }
-            }
-          });
-        } else if (
-          smallFork.color === state.color &&
-          bigFork.color === state.color
-        ) {
-          eat();
-        }
-      } else if (state.eating) {
-        return;
+      if (smallFork.color === "black") {
+        postMessage({
+          changeFork: {
+            index: smallForkIndex,
+            value: { color: state.color }
+          }
+        });
+      } else if (smallFork.color === state.color && bigFork.color === "black") {
+        postMessage({
+          changeFork: {
+            index: bigForkIndex,
+            value: { color: state.color }
+          }
+        });
+      } else if (
+        smallFork.color === state.color &&
+        bigFork.color === state.color
+      ) {
+        eat();
       }
     }, speed);
   };

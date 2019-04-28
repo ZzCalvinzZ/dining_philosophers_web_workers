@@ -4,7 +4,7 @@ import { ReactComponent as Svg } from "./fork.svg";
 import "./Fork.css";
 
 const Fork = ({ style }) => {
-  return <Svg style={{ height: "50px", position: "absolute", ...style }} />;
+  return <Svg style={{ height: "60px", position: "absolute", ...style }} />;
 };
 
 Fork.defaultProps = {};

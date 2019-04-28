@@ -5,19 +5,19 @@ import Philosopher from "../Philosopher/";
 import Fork from "../Fork/";
 import deadlockedPhilosopherWorker from "../../deadlockedPhilosopherWorker";
 import resourceHierarchyPhilosopherWorker from "../../resourceHierarchyPhilosopherWorker";
+import arbitratorPhilosopherWorker from "../../arbitratorPhilosopherWorker";
 import WebWorker from "../../WebWorker";
 
 class Table extends Component {
   static propTypes = {
     philosophers: PropTypes.array,
-    forks: PropTypes.array,
+    forks: PropTypes.array
   };
 
   componentWillUnmount() {
-    this.workers.map((w) => {
+    this.workers.map(w => {
       w.terminate();
-    })
-
+    });
   }
 
   constructor(props) {
@@ -35,6 +35,8 @@ class Table extends Component {
         worker = new WebWorker(deadlockedPhilosopherWorker);
       } else if (solution === "resource-hierarchy") {
         worker = new WebWorker(resourceHierarchyPhilosopherWorker);
+      } else if (solution === "arbitrator") {
+        worker = new WebWorker(arbitratorPhilosopherWorker);
       }
 
       worker.addEventListener(
@@ -70,6 +72,32 @@ class Table extends Component {
               return { philosophers: newPhilosophers };
             });
           }
+          if (msg.askWaiter) {
+            this.setState(state => {
+              if (
+                state.forks[p.leftFork].color === "black" &&
+                state.forks[p.rightFork].color === "black"
+              ) {
+                const p = msg.askWaiter.philosopher;
+
+                const newForks = state.forks.map((f, i) => {
+                  if (i === p.leftFork || i === p.rightFork) {
+                    return { color: p.color };
+                  } else return f;
+                });
+
+                this.workers.map((w, i) => {
+                  w.postMessage({ forks: newForks });
+                  if (state.philosophers[i].color === p.color) {
+                    w.postMessage({ eat: true });
+                  }
+                });
+                return { forks: newForks };
+              } else {
+                return {};
+              }
+            });
+          }
         },
         false
       );
@@ -80,11 +108,9 @@ class Table extends Component {
     });
   }
   render() {
-    const { speed, solution } = this.props;
     const { philosophers, forks } = this.state;
 
     const diameter = philosophers.length * 100;
-    const radius = diameter / 2;
 
     return (
       <div

@@ -22,35 +22,35 @@ class App extends Component {
         color: "red",
         leftFork: 0,
         rightFork: 2,
-        thinking: true,
+        thinking: false,
         eating: false
       },
       {
         color: "blue",
         leftFork: 1,
         rightFork: 0,
-        thinking: true,
+        thinking: false,
         eating: false
       },
       {
         color: "green",
         leftFork: 4,
         rightFork: 1,
-        thinking: true,
+        thinking: false,
         eating: false
       },
       {
-        color: "gray",
+        color: "orange",
         leftFork: 2,
         rightFork: 3,
-        thinking: true,
+        thinking: false,
         eating: false
       },
       {
         color: "purple",
         leftFork: 3,
         rightFork: 4,
-        thinking: true,
+        thinking: false,
         eating: false
       }
     ],
@@ -59,22 +59,32 @@ class App extends Component {
   };
 
   render() {
-    const { forks, philosophers, solution, speed } = this.state;
+    const { forks, philosophers, solution } = this.state;
     return (
       <div className="app">
-        <button
-          className="deadlock-btn"
-          onClick={() => this.setState({ solution: "deadlock" })}
-        >
-          Deadlock Solution
-        </button>
-        <button
-          className="no-deadlock-btn"
-          onClick={() => this.setState({ solution: "resource-hierarchy" })}
-        >
-          Resource Hierarchy Solution
-        </button>
-        <div>{solution}</div>
+        <div>
+          <button
+            className="deadlock-btn"
+            onClick={() => this.setState({ solution: "deadlock" })}
+          >
+            Deadlock Solution
+          </button>
+          <button
+            className="no-deadlock-btn"
+            onClick={() => this.setState({ solution: "resource-hierarchy" })}
+          >
+            Resource Hierarchy Solution
+          </button>
+          <button
+            className="no-deadlock-btn"
+            onClick={() => this.setState({ solution: "arbitrator" })}
+          >
+            Arbitrator Solution
+          </button>
+        </div>
+        <div>
+          <h2>{solution}</h2>
+        </div>
         {solution === "deadlock" && (
           <Table
             forks={forks}
@@ -83,6 +93,13 @@ class App extends Component {
           />
         )}
         {solution === "resource-hierarchy" && (
+          <Table
+            forks={forks}
+            philosophers={philosophers}
+            solution={solution}
+          />
+        )}
+        {solution === "arbitrator" && (
           <Table
             forks={forks}
             philosophers={philosophers}

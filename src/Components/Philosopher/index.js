@@ -5,7 +5,7 @@ import { ReactComponent as EatingSvg } from "./eating.svg";
 import "./Philosopher.css";
 
 const Philosopher = ({ style, eating }) => {
-  const fullStyle = { height: "50px", position: "absolute", ...style };
+  const fullStyle = { height: "75px", position: "absolute", ...style };
   if (eating) {
     return <EatingSvg style={fullStyle} />;
   }

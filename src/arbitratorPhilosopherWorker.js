@@ -1,9 +1,7 @@
-import { setTimeout } from "core-js";
-
 // philosopherWorker.js
 
 // @args: You can pass your worker parameters on initialisation
-export default function deadlockedPhilosopherWorker(args) {
+export default function philosopherWorker(args) {
   let state = {};
   let forks = [];
   let speed = 100;
@@ -63,28 +61,11 @@ export default function deadlockedPhilosopherWorker(args) {
         return;
       }
 
-      const leftFork = forks[state.leftFork];
-      const rightFork = forks[state.rightFork];
-      if (leftFork.color === "black") {
-        postMessage({
-          changeFork: { index: state.leftFork, value: { color: state.color } }
-        });
-      } else if (
-        leftFork.color === state.color &&
-        rightFork.color === "black"
-      ) {
-        postMessage({
-          changeFork: {
-            index: state.rightFork,
-            value: { color: state.color }
-          }
-        });
-      } else if (
-        leftFork.color === state.color &&
-        rightFork.color === state.color
-      ) {
-        eat();
-      }
+      postMessage({
+        askWaiter: {
+          philosopher: state
+        }
+      });
     }, speed);
   };
 
@@ -97,8 +78,8 @@ export default function deadlockedPhilosopherWorker(args) {
     if (msg.forks) {
       forks = msg.forks;
     }
-    if (msg.speed) {
-      speed = msg.speed;
+    if (msg.eat) {
+      eat();
     }
     if (msg.start) {
       start();
